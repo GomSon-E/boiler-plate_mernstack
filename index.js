@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 
 const config = require('./config/key')
-
+const {auth} = require('./middleware/auth')
 const { User } = require('./models/User')
 
 const mongoose = require('mongoose')
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 })
 
 //회원가입 route
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
   // 회원가입할 때 필요한 정보를 client에서 가져옴
   const user = new User(req.body)
   // 가져온 정보를 데이터베이스에 저장
@@ -38,7 +38,7 @@ app.post('/register', (req, res) => {
 })
 
 // 로그인 route
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
 
   // 요청된 이메일을 데이터베이스에 존재하는지 확인
   User.findOne({ email: req.body.email }, (err, user) => {
@@ -67,6 +67,22 @@ app.post('/login', (req, res) => {
           .json ({ loginSuccess: true, userId: user._id })
       })
     })
+  })
+})
+
+// Auth route -> 어느 페이지에서나 유저 정보 사용 가능
+app.get('/api/users/auth', auth,(req, res) => {
+  
+  // 미들웨어를 통과해 여기까지 도달 = Authentication : True
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true, // role 0 -> 일반유저, 그외 -> 관리자
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image
   })
 })
 
