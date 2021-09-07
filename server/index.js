@@ -35,7 +35,7 @@ app.post("/api/users/register", (req, res) => {
   const user = new User(req.body);
   // 가져온 정보를 데이터베이스에 저장
   user.save((err, userInfo) => {
-    if (err) return res.json({ success: fasle, err });
+    if (err) return res.json({ success: false, err });
     return res.status(200).json({ success: true });
   });
 });
